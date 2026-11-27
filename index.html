@@ -24,11 +24,11 @@
 </script>
 <style>
 :root{
-  color-scheme:light dark;
+  color-scheme:light;
   --red:#d71920;--red-dark:#b30f17;
-  --red-soft:light-dark(#fff1f2,#3a1416);--red-line:light-dark(#f5c2c5,#6b2226);
-  --ink:light-dark(#172033,#e8ebf0);--slate:light-dark(#556176,#a8b1c0);--muted:light-dark(#7b8494,#8a93a3);
-  --line:light-dark(#dde2e8,#2e3545);--canvas:light-dark(#f4f6f8,#10141c);--card:light-dark(#ffffff,#1a2030);
+  --red-soft:#fff1f2;--red-line:#f5c2c5;
+  --ink:#172033;--slate:#556176;--muted:#7b8494;
+  --line:#dde2e8;--canvas:#f4f6f8;--card:#ffffff;
   --green:#16a34a;
   --shadow:0 8px 28px rgba(23,32,51,.12);--shadow-sm:0 2px 10px rgba(23,32,51,.06);
   font-family:"Segoe UI",Arial,Helvetica,sans-serif;
@@ -37,10 +37,38 @@
 html,body{margin:0;background:var(--canvas);color:var(--ink);-webkit-tap-highlight-color:transparent}
 button{font-family:inherit;cursor:pointer}[hidden]{display:none!important}
 img,svg{max-width:100%}
-header{background:var(--red);color:#fff;padding:14px clamp(14px,4vw,24px);display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);position:sticky;top:0;z-index:20}
-.logo{width:38px;height:38px;border-radius:10px;background:#fff;display:grid;place-items:center;flex:none}
-.brand h1{margin:0;font-size:19px;letter-spacing:.3px}
-.brand p{margin:1px 0 0;font-size:12px;opacity:.9}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.header-inner{max-width:1100px;margin:0 auto;padding:10px clamp(14px,4vw,24px);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.ir-logo{height:32px;width:auto;display:block}
+.brand{padding-left:14px;border-left:1px solid var(--line)}
+.brand h1{margin:0;font-size:18px;letter-spacing:-.3px;color:var(--ink)}
+.brand p{margin:0;font-size:12px;color:var(--slate)}
+.nav{display:flex;gap:4px;margin-left:auto}
+.nav button{border:0;background:transparent;color:var(--slate);font-weight:650;font-size:13.5px;padding:9px 14px;border-radius:8px}
+.nav button:hover{background:#f1f3f6;color:var(--ink)}
+.nav button.active{background:var(--ink);color:#fff}
+.nav .count{display:inline-block;min-width:18px;padding:0 6px;margin-left:6px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;line-height:18px;text-align:center}
+.hero h2{font-size:clamp(22px,5vw,30px);margin:4px 0 6px;letter-spacing:-.5px}
+.hero p{margin:0 0 18px;color:var(--slate);font-size:14.5px}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:650;white-space:nowrap}
+.b-new{background:#eef2ff;color:#3730a3}.b-review{background:#fef3c7;color:#92400e}.b-approved{background:#dcfce7;color:#166534}
+.b-done{background:#d1fae5;color:#065f46}.b-rejected{background:#fee2e2;color:#991b1b}.b-local{background:#f1f3f6;color:#556176}
+.h-card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card);display:grid;gap:6px}
+.h-top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.h-id{font-family:Consolas,monospace;font-size:12.5px;color:var(--slate)}
+.h-txt{margin:0;font-size:14.5px}
+.h-meta{font-size:12.5px;color:var(--muted)}
+.search-row{display:flex;gap:8px;flex-wrap:wrap}.search-row input{flex:1;min-width:200px}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.filters input[type=search]{grid-column:1/-1}
+.filters select,.filters input{height:44px;padding:0 10px;font-size:14.5px}
+.chk{display:flex;align-items:center;gap:8px;margin:0;font-weight:600;color:var(--slate);font-size:13.5px}
+.chk input{width:18px;height:18px}
+.h-by{font-weight:600;color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--card);text-align:center}
+.kpi b{display:block;font-size:20px}.kpi span{font-size:12px;color:var(--slate)}
+@media(max-width:560px){.brand{border-left:0;padding-left:0}.nav{margin-left:0;width:100%}.nav button{flex:1}}
 main{max-width:720px;width:100%;margin:0 auto;padding:clamp(14px,4vw,24px)}
 .steps{display:flex;gap:6px;margin:0 0 16px}
 .steps span{flex:1;height:5px;border-radius:9px;background:var(--line)}
@@ -56,7 +84,7 @@ h2{margin:0 0 6px;font-size:20px}
 .big:not(.primary) .ic{background:var(--red-soft);color:var(--red)}
 .btn{height:46px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:15px;font-weight:600}
 .btn.primary{background:var(--red);border-color:var(--red);color:#fff}
-.btn.primary:disabled{opacity:.45;cursor-not-allowed}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed}
 .btn.ghost{background:transparent}
 .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .row .btn{flex:1;min-width:130px}
@@ -90,6 +118,7 @@ textarea{min-height:96px;resize:vertical}
 .prefix{position:relative}.prefix span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
 .prefix input{padding-left:26px}
 .err{color:var(--red);font-size:12.5px;min-height:16px;margin-top:4px}
+.count{float:right;font-weight:400;color:var(--muted)}
 .table-wrap{overflow-x:auto;margin-top:12px}
 table{border-collapse:collapse;width:100%;font-size:13.5px}
 th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
@@ -105,16 +134,20 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo" aria-hidden="true">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d71920" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg>
-  </div>
-  <div class="brand"><h1>IR Eureka</h1><p>See it. Pin it. Save it.</p></div>
-</header>
+<header><div class="header-inner">
+  <img class="ir-logo" src="ir-logo.png" alt="Ingersoll Rand">
+  <div class="brand"><h1>IR Eureka</h1><p>i2V Ideas &middot; See it. Pin it. Save it.</p></div>
+  <nav class="nav" aria-label="Main">
+    <button type="button" class="active" id="tabNew">New Idea</button>
+    <button type="button" id="tabHist">Ideas Board<span class="count" id="histCount" hidden>0</span></button>
+  </nav>
+</div></header>
 
 <main>
+ <div id="viewNew">
   <div class="steps" aria-hidden="true"><span id="s1" class="on"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span></div>
 
+  <!-- STEP 1: CAPTURE -->
   <section id="step-capture" class="card">
     <h2>Got an idea?</h2>
     <p class="sub">Take a photo of the area, machine or process you want to improve, then pin your idea right on it.</p>
@@ -137,6 +170,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
     </div>
   </section>
 
+  <!-- STEP 2: PIN -->
   <section id="step-pin" hidden>
     <div class="hint"><svg width="18" height="18" viewBox="0 0 24 24" fill="#d71920"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/></svg>
       <span><b>Tap the photo</b> to drop a pin. <b>Tap a pin</b> to add idea details. Drag a pin to move it.</span></div>
@@ -148,6 +182,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
     </div>
   </section>
 
+  <!-- STEP 3: REVIEW -->
   <section id="step-review" class="card" hidden>
     <h2>Review your ideas</h2>
     <p class="sub" id="reviewWho"></p>
@@ -163,16 +198,52 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
     </div>
   </section>
 
+  <!-- STEP 4: DONE -->
   <section id="step-done" class="card center" hidden>
     <div class="done-ic"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
     <h2>Eureka! Thank you.</h2>
     <p class="sub">Your idea(s) were submitted to the i2V team.</p>
     <div class="ids" id="doneIds"></div>
-    <button type="button" class="btn primary" id="btnAnother">Submit another idea</button>
+    <div class="row">
+      <button type="button" class="btn" id="btnSeeHist">View ideas board</button>
+      <button type="button" class="btn primary" id="btnAnother">Submit another idea</button>
+    </div>
   </section>
+ </div>
+
+  <!-- HISTORY -->
+  <div id="viewHist" hidden>
+    <div class="hero" id="step-history"><h2>Ideas board</h2><p>All i2V ideas and their live status from the ideas register. <span id="hUpdated"></span></p></div>
+    <div class="kpis" id="hKpis">
+      <div class="kpi"><b id="kCount">0</b><span>Ideas</span></div>
+      <div class="kpi"><b id="kSave">$0</b><span>Est. savings</span></div>
+      <div class="kpi"><b id="kDone">0</b><span>Approved / Done</span></div>
+    </div>
+    <div class="card">
+      <div class="filters">
+        <input id="fq" type="search" placeholder="Search idea, ID or name" aria-label="Search">
+        <select id="fStatus" aria-label="Status"><option value="">All status</option></select>
+        <select id="fPerson" aria-label="Submitted by"><option value="">All people</option></select>
+        <select id="fMonth" aria-label="Month"><option value="">All months</option></select>
+        <select id="fSort" aria-label="Sort">
+          <option value="new">Newest first</option><option value="old">Oldest first</option>
+          <option value="save">Highest savings</option><option value="time">Quickest to execute</option>
+        </select>
+        <label class="chk"><input type="checkbox" id="fMine"> My ideas only</label>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button type="button" class="btn ghost" id="btnClear">Clear filters</button>
+        <button type="button" class="btn" id="btnRefresh">Refresh</button>
+      </div>
+      <p class="err" id="hErr"></p>
+      <p class="sub" id="hShown" style="margin:4px 0 0"></p>
+      <div class="list" id="hList"></div>
+    </div>
+  </div>
 </main>
 <footer>Ingersoll Rand · i2V Ideas Program</footer>
 
+<!-- PIN FORM SHEET -->
 <div class="sheet-bg" id="sheetBg" hidden></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
   <div class="grab"></div>
@@ -200,9 +271,11 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 </div>
 
 <script>
+/* ===== CONFIG: fill after creating the Power Automate flow ===== */
 var CONFIG = {
   flowUrl: "https://defaultcbcd573c126846b899ebfe11508736.55.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/27/workflows/99a38ce6626e4d4d824ab7059cd03a90/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6G033zj5t57ffXjYElbbAYefi5BPsJWWw8owQDZhIvc",
   token: "IRE-7k3Q9-2026",
+  historyUrl: "https://defaultcbcd573c126846b899ebfe11508736.55.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/13/workflows/4317d73cfa9f4f9c964b4f4ca6ef204e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=B7F2XAvIYmzoeTp-FGiLxdvGjGs2HRc0N9xel_vhaYA",
   maxSide: 1280,
   jpegQuality: 0.75,
   maxPins: 10
@@ -224,6 +297,7 @@ var CONFIG = {
     window.scrollTo(0,0);
   }
 
+  /* ---------- Capture ---------- */
   $("btnCamera").addEventListener("click", function(){ $("fileCamera").click(); });
   $("btnUpload").addEventListener("click", function(){ $("fileUpload").click(); });
   $("fileCamera").addEventListener("change", onFile);
@@ -256,6 +330,7 @@ var CONFIG = {
     show("step-capture");
   });
 
+  /* ---------- Pins ---------- */
   var stage = $("stage");
   var PIN_SVG = '<svg viewBox="0 0 34 42"><path d="M17 0C7.6 0 0 7.4 0 16.6 0 28.5 17 42 17 42s17-13.5 17-25.4C34 7.4 26.4 0 17 0z" fill="#d71920"/></svg>';
 
@@ -265,7 +340,8 @@ var CONFIG = {
     var r = stage.getBoundingClientRect();
     var x = (e.clientX - r.left) / r.width * 100, y = (e.clientY - r.top) / r.height * 100;
     state.pins.push({ x:+x.toFixed(2), y:+y.toFixed(2), details:"", execTime:"", execUnit:"Days", savingsUSD:"" });
-    renderPins(); openSheet(state.pins.length - 1);
+    renderPins();
+    openSheet(state.pins.length - 1);
   });
 
   function renderPins(){
@@ -277,7 +353,8 @@ var CONFIG = {
       b.style.left = p.x + "%"; b.style.top = p.y + "%";
       b.setAttribute("aria-label", "Pin " + (i+1));
       b.innerHTML = PIN_SVG + "<b>" + (i+1) + "</b>";
-      attachDrag(b, i); stage.appendChild(b);
+      attachDrag(b, i);
+      stage.appendChild(b);
     });
     var list = $("pinList"); list.textContent = "";
     state.pins.forEach(function(p, i){
@@ -298,7 +375,10 @@ var CONFIG = {
 
   function attachDrag(el, i){
     var start = null, moved = false;
-    el.addEventListener("pointerdown", function(e){ start = { x:e.clientX, y:e.clientY }; moved = false; el.setPointerCapture(e.pointerId); e.preventDefault(); });
+    el.addEventListener("pointerdown", function(e){
+      start = { x:e.clientX, y:e.clientY }; moved = false;
+      el.setPointerCapture(e.pointerId); e.preventDefault();
+    });
     el.addEventListener("pointermove", function(e){
       if (!start) return;
       if (Math.abs(e.clientX - start.x) + Math.abs(e.clientY - start.y) > 8) moved = true;
@@ -309,10 +389,14 @@ var CONFIG = {
       state.pins[i].x = +x.toFixed(2); state.pins[i].y = +y.toFixed(2);
       el.style.left = x + "%"; el.style.top = y + "%";
     });
-    el.addEventListener("pointerup", function(){ var wasTap = start && !moved; start = null; if (wasTap) openSheet(i); });
+    el.addEventListener("pointerup", function(){
+      var wasTap = start && !moved; start = null;
+      if (wasTap) openSheet(i);
+    });
     el.addEventListener("pointercancel", function(){ start = null; });
   }
 
+  /* ---------- Sheet ---------- */
   function openSheet(i){
     state.activeIdx = i;
     var p = state.pins[i];
@@ -322,7 +406,8 @@ var CONFIG = {
     ["eDetails","eName","eMail"].forEach(function(id){ $(id).textContent = ""; });
     $("cnt").textContent = p.details.length + "/1000";
     $("sheet").hidden = false; $("sheetBg").hidden = false;
-    renderPins(); setTimeout(function(){ $("fDetails").focus(); }, 150);
+    renderPins();
+    setTimeout(function(){ $("fDetails").focus(); }, 150);
   }
   function closeSheet(){
     $("sheet").hidden = true; $("sheetBg").hidden = true;
@@ -347,9 +432,11 @@ var CONFIG = {
     p.details = d; p.execTime = $("fTime").value; p.execUnit = $("fUnit").value; p.savingsUSD = $("fSave").value;
     state.name = n; state.email = m;
     try { localStorage.setItem("irEurekaUser", JSON.stringify({ name:n, email:m })); } catch(e){}
-    $("sheet").hidden = true; $("sheetBg").hidden = true; state.activeIdx = -1; renderPins();
+    $("sheet").hidden = true; $("sheetBg").hidden = true; state.activeIdx = -1;
+    renderPins();
   });
 
+  /* ---------- Review ---------- */
   $("btnToReview").addEventListener("click", function(){
     $("reviewWho").textContent = "Submitted by " + state.name + " (" + state.email + ")";
     $("reviewImg").src = annotatedImage();
@@ -360,9 +447,12 @@ var CONFIG = {
         .forEach(function(v){ var td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
       tb.appendChild(tr);
     });
-    $("submitErr").textContent = ""; show("step-review");
+    $("submitErr").textContent = "";
+    show("step-review");
   });
-  $("btnBack").addEventListener("click", function(){ if (state.resume) { state.resume = null; show("step-capture"); } else show("step-pin"); });
+  $("btnBack").addEventListener("click", function(){
+    if (state.resume) { state.resume = null; show("step-capture"); } else show("step-pin");
+  });
 
   function annotatedImage(){
     var img = $("photo"), c = document.createElement("canvas");
@@ -379,6 +469,7 @@ var CONFIG = {
     return c.toDataURL("image/jpeg", CONFIG.jpegQuality);
   }
 
+  /* ---------- Submit ---------- */
   function pad(n){ return String(n).padStart(2, "0"); }
   function buildPayload(){
     var d = new Date();
@@ -400,15 +491,21 @@ var CONFIG = {
   $("btnSubmit").addEventListener("click", function(){ send(state.resume || buildPayload()); });
 
   function send(payload){
-    var btn = $("btnSubmit"); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Submitting…';
+    var btn = $("btnSubmit");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Submitting…';
     $("submitErr").textContent = "";
-    if (CONFIG.flowUrl.indexOf("http") !== 0) { fail(payload, "Submission endpoint is not configured yet. Your draft was saved on this device."); return; }
+    if (CONFIG.flowUrl.indexOf("http") !== 0) {
+      fail(payload, "Submission endpoint is not configured yet. Your draft was saved on this device."); return;
+    }
+    // text/plain avoids a CORS preflight; the flow parses the body as JSON.
     fetch(CONFIG.flowUrl, { method:"POST", headers:{ "Content-Type":"text/plain;charset=UTF-8" }, body: JSON.stringify(payload) })
       .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
       .then(function(){
         try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
+        saveLocal(payload);
         $("doneIds").textContent = payload.ideas.map(function(i){ return i.ideaId; }).join("\n");
-        $("draftBox").hidden = true; reset(); show("step-done");
+        $("draftBox").hidden = true;
+        reset(); show("step-done");
       })
       .catch(function(err){ fail(payload, "Could not submit (" + err.message + "). Your draft was saved — check your connection and tap Submit again."); });
   }
@@ -417,7 +514,10 @@ var CONFIG = {
     $("submitErr").textContent = msg;
     var btn = $("btnSubmit"); btn.disabled = false; btn.textContent = "Submit";
   }
-  function reset(){ var btn = $("btnSubmit"); btn.disabled = false; btn.textContent = "Submit"; state.image = null; state.pins = []; state.resume = null; }
+  function reset(){
+    var btn = $("btnSubmit"); btn.disabled = false; btn.textContent = "Submit";
+    state.image = null; state.pins = []; state.resume = null;
+  }
 
   $("btnResume").addEventListener("click", function(){
     var d; try { d = JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch(e){}
@@ -431,10 +531,165 @@ var CONFIG = {
         .forEach(function(v){ var td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
       tb.appendChild(tr);
     });
-    state.resume = d; show("step-review");
+    state.resume = d;
+    show("step-review");
   });
 
   $("btnAnother").addEventListener("click", function(){ show("step-capture"); });
+  $("btnSeeHist").addEventListener("click", function(){ show("step-capture"); openTab("hist"); });
+
+  /* ---------- Tabs ---------- */
+  function openTab(t){
+    $("viewNew").hidden = t !== "new"; $("viewHist").hidden = t !== "hist";
+    $("tabNew").classList.toggle("active", t === "new"); $("tabHist").classList.toggle("active", t === "hist");
+    if (t === "hist") {
+      if (!board.rows || !board.loadedAt || Date.now() - board.loadedAt > 15000) loadBoard();
+      clearInterval(board.timer); board.timer = setInterval(function(){ if (!document.hidden) loadBoard(); }, REFRESH_MS);
+    } else clearInterval(board.timer);
+    window.scrollTo(0,0);
+  }
+  $("tabNew").addEventListener("click", function(){ openTab("new"); });
+  $("tabHist").addEventListener("click", function(){ openTab("hist"); });
+
+  /* ---------- History ---------- */
+  var LOCAL_KEY = "irEurekaSent";
+  function getLocal(){ try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]"); } catch(e){ return []; } }
+  function saveLocal(p){
+    var list = getLocal();
+    p.ideas.forEach(function(i){
+      list.unshift({ IdeaID:i.ideaId, Timestamp:p.submittedAt, Name:p.name, IdeaDetails:i.details,
+        SavingsUSD:i.savingsUSD, ExecTime:i.execTime, ExecUnit:i.execUnit, Status:"Submitted" });
+    });
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(list.slice(0, 200))); } catch(e){}
+    updateCount();
+    if (board.rows) board.loadedAt = null;
+  }
+  function updateCount(){ $("histCount").hidden = true; }
+  updateCount();
+
+  function badgeClass(s){
+    s = String(s || "").toLowerCase();
+    if (/reject|declin|closed/.test(s)) return "b-rejected";
+    if (/done|implement|complete/.test(s)) return "b-done";
+    if (/approv/.test(s)) return "b-approved";
+    if (/review|progress|hold/.test(s)) return "b-review";
+    if (/submitted/.test(s)) return "b-local";
+    return "b-new";
+  }
+  function fmtDate(v){
+    if (v === null || v === undefined || v === "") return "";
+    var d = typeof v === "number" || /^\d+(\.\d+)?$/.test(String(v)) ? new Date(Math.round((Number(v) - 25569) * 864e5)) : new Date(v);
+    return isNaN(d) ? String(v) : d.toLocaleDateString(undefined, { day:"2-digit", month:"short", year:"numeric" });
+  }
+  function toDate(v){
+    if (v === null || v === undefined || v === "") return null;
+    var d = typeof v === "number" || /^\d+(\.\d+)?$/.test(String(v)) ? new Date(Math.round((Number(v) - 25569) * 864e5)) : new Date(String(v).replace(" ", "T"));
+    return isNaN(d) ? null : d;
+  }
+  function monthKey(d){ return d ? d.getFullYear() + "-" + pad(d.getMonth()+1) : ""; }
+  function monthLabel(k){ var p = k.split("-"); return new Date(+p[0], +p[1]-1, 1).toLocaleDateString(undefined, { month:"short", year:"numeric" }); }
+  var UNIT_H = { hours:1, days:8, weeks:40, months:160 };
+
+  var board = { rows:null, loading:false, loadedAt:null, timer:null };
+  var REFRESH_MS = 60000;
+
+  function loadBoard(){
+    if (board.loading) return;
+    $("hErr").textContent = "";
+    if (CONFIG.historyUrl.indexOf("http") !== 0) {
+      $("hErr").textContent = "Live board is not configured yet. Showing ideas sent from this device.";
+      board.rows = getLocal(); fillFilters(); applyFilters(); return;
+    }
+    board.loading = true;
+    var btn = $("btnRefresh"); btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-color:rgba(0,0,0,.15);border-top-color:#172033"></span>Loading\u2026';
+    fetch(CONFIG.historyUrl, { method:"POST", headers:{ "Content-Type":"text/plain;charset=UTF-8" }, body: JSON.stringify({ token: CONFIG.token, action: "list" }) })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function(d){
+        board.rows = (Array.isArray(d) ? d : (d.value || d.ideas || [])).filter(function(r){ return r && r.IdeaID; });
+        board.loadedAt = new Date(); fillFilters(); applyFilters();
+      })
+      .catch(function(err){
+        $("hErr").textContent = "Could not load the live board (" + err.message + ").";
+        if (!board.rows) { board.rows = getLocal(); fillFilters(); applyFilters(); }
+      })
+      .then(function(){ board.loading = false; btn.disabled = false; btn.textContent = "Refresh"; });
+  }
+
+  function fillSelect(sel, values, label, fmt){
+    var cur = sel.value; sel.textContent = "";
+    var o = document.createElement("option"); o.value = ""; o.textContent = label; sel.appendChild(o);
+    values.forEach(function(v){ var x = document.createElement("option"); x.value = v; x.textContent = fmt ? fmt(v) : v; sel.appendChild(x); });
+    if (values.indexOf(cur) > -1) sel.value = cur;
+  }
+  function uniq(a){ return a.filter(function(v, i){ return v && a.indexOf(v) === i; }); }
+  function fillFilters(){
+    var rows = board.rows || [];
+    fillSelect($("fStatus"), uniq(rows.map(function(r){ return r.Status || "New"; })).sort(), "All status");
+    fillSelect($("fPerson"), uniq(rows.map(function(r){ return String(r.Name || "").trim(); })).sort(), "All people");
+    fillSelect($("fMonth"), uniq(rows.map(function(r){ return monthKey(toDate(r.Timestamp)); })).sort().reverse(), "All months", monthLabel);
+  }
+
+  function applyFilters(){
+    var rows = board.rows || [];
+    var q = $("fq").value.trim().toLowerCase(), st = $("fStatus").value, pe = $("fPerson").value, mo = $("fMonth").value;
+    var mine = $("fMine").checked, me = (state.name || "").trim().toLowerCase();
+    var out = rows.filter(function(r){
+      if (st && (r.Status || "New") !== st) return false;
+      if (pe && String(r.Name || "").trim() !== pe) return false;
+      if (mo && monthKey(toDate(r.Timestamp)) !== mo) return false;
+      if (mine && (!me || String(r.Name || "").trim().toLowerCase() !== me)) return false;
+      if (q && [r.IdeaID, r.IdeaDetails, r.Name].join(" ").toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    var s = $("fSort").value;
+    out.sort(function(a, b){
+      if (s === "save") return (Number(b.SavingsUSD) || 0) - (Number(a.SavingsUSD) || 0);
+      if (s === "time") {
+        var ta = (Number(a.ExecTime) || 1e9) * (UNIT_H[String(a.ExecUnit).toLowerCase()] || 1);
+        var tb = (Number(b.ExecTime) || 1e9) * (UNIT_H[String(b.ExecUnit).toLowerCase()] || 1);
+        return ta - tb;
+      }
+      var da = toDate(a.Timestamp), db = toDate(b.Timestamp);
+      var c = (da ? da.getTime() : 0) - (db ? db.getTime() : 0) || String(a.IdeaID).localeCompare(String(b.IdeaID));
+      return s === "old" ? c : -c;
+    });
+    renderBoard(out, rows.length);
+  }
+
+  function renderBoard(src, total){
+    var list = $("hList"); list.textContent = "";
+    var save = 0, done = 0;
+    src.forEach(function(r){ save += Number(r.SavingsUSD) || 0; if (/approv|done|implement|complete/i.test(r.Status)) done++; });
+    $("kCount").textContent = src.length; $("kSave").textContent = "$" + save.toLocaleString(); $("kDone").textContent = done;
+    $("hShown").textContent = "Showing " + src.length + " of " + total + " ideas";
+    $("hUpdated").textContent = board.loadedAt ? "Updated " + board.loadedAt.toLocaleTimeString(undefined, { hour:"2-digit", minute:"2-digit" }) + "." : "";
+    if (!src.length) { var p = document.createElement("p"); p.className = "sub"; p.textContent = total ? "No ideas match these filters." : "No ideas yet. Be the first!"; list.appendChild(p); return; }
+    src.slice(0, 300).forEach(function(r){
+      var c = document.createElement("div"); c.className = "h-card";
+      var top = document.createElement("div"); top.className = "h-top";
+      var id = document.createElement("span"); id.className = "h-id"; id.textContent = r.IdeaID || "";
+      var b = document.createElement("span"); b.className = "badge " + badgeClass(r.Status); b.textContent = r.Status || "New";
+      top.appendChild(id); top.appendChild(b);
+      var t = document.createElement("p"); t.className = "h-txt"; t.textContent = r.IdeaDetails || "";
+      var m = document.createElement("div"); m.className = "h-meta";
+      var by = document.createElement("span"); by.className = "h-by"; by.textContent = r.Name || "";
+      var d = toDate(r.Timestamp);
+      var rest = [d ? d.toLocaleDateString(undefined, { day:"2-digit", month:"short", year:"numeric" }) : "",
+        r.ExecTime ? r.ExecTime + " " + (r.ExecUnit || "") : "",
+        Number(r.SavingsUSD) ? "$" + Number(r.SavingsUSD).toLocaleString() : ""].filter(Boolean).join(" \u00b7 ");
+      m.appendChild(by); m.appendChild(document.createTextNode((r.Name && rest ? " \u00b7 " : "") + rest));
+      c.appendChild(top); c.appendChild(t); c.appendChild(m); list.appendChild(c);
+    });
+  }
+
+  ["fq"].forEach(function(id){ $(id).addEventListener("input", applyFilters); });
+  ["fStatus","fPerson","fMonth","fSort","fMine"].forEach(function(id){ $(id).addEventListener("change", applyFilters); });
+  $("btnClear").addEventListener("click", function(){
+    $("fq").value = ""; ["fStatus","fPerson","fMonth"].forEach(function(id){ $(id).value = ""; });
+    $("fSort").value = "new"; $("fMine").checked = false; applyFilters();
+  });
+  $("btnRefresh").addEventListener("click", loadBoard);
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden && !$("viewHist").hidden) loadBoard(); });
 })();
 </script>
 </body>
