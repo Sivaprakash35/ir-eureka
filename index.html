@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="snowflake-source" content="cortex-agent-authored">
+<meta name="theme-color" content="#d71920">
+<title>IR Eureka – See it. Pin it. Save it.</title>
+<script type="application/json" id="snowflake-report-metadata">
+{
+  "generated": "2026-11-26",
+  "intent": "IR Eureka i2V idea capture web app: photo, pin, idea details, submit to SharePoint Excel via Power Automate",
+  "dataSources": [
+    { "type": "file", "path": "flow_payload_schema.json" }
+  ],
+  "sections": [
+    { "id": "step-capture", "title": "Capture photo" },
+    { "id": "step-pin", "title": "Pin ideas on photo" },
+    { "id": "step-review", "title": "Review and submit" },
+    { "id": "step-done", "title": "Submission result" }
+  ],
+  "producerNotes": "Set CONFIG.flowUrl and CONFIG.token below after creating the Power Automate flow (see POWER_AUTOMATE_SETUP.md)."
+}
+</script>
+<style>
+:root{
+  color-scheme:light dark;
+  --red:#d71920;--red-dark:#b30f17;
+  --red-soft:light-dark(#fff1f2,#3a1416);--red-line:light-dark(#f5c2c5,#6b2226);
+  --ink:light-dark(#172033,#e8ebf0);--slate:light-dark(#556176,#a8b1c0);--muted:light-dark(#7b8494,#8a93a3);
+  --line:light-dark(#dde2e8,#2e3545);--canvas:light-dark(#f4f6f8,#10141c);--card:light-dark(#ffffff,#1a2030);
+  --green:#16a34a;
+  --shadow:0 8px 28px rgba(23,32,51,.12);--shadow-sm:0 2px 10px rgba(23,32,51,.06);
+  font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--canvas);color:var(--ink);-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;cursor:pointer}[hidden]{display:none!important}
+img,svg{max-width:100%}
+header{background:var(--red);color:#fff;padding:14px clamp(14px,4vw,24px);display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);position:sticky;top:0;z-index:20}
+.logo{width:38px;height:38px;border-radius:10px;background:#fff;display:grid;place-items:center;flex:none}
+.brand h1{margin:0;font-size:19px;letter-spacing:.3px}
+.brand p{margin:1px 0 0;font-size:12px;opacity:.9}
+main{max-width:720px;width:100%;margin:0 auto;padding:clamp(14px,4vw,24px)}
+.steps{display:flex;gap:6px;margin:0 0 16px}
+.steps span{flex:1;height:5px;border-radius:9px;background:var(--line)}
+.steps span.on{background:var(--red)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(16px,4vw,22px);box-shadow:var(--shadow-sm)}
+h2{margin:0 0 6px;font-size:20px}
+.sub{margin:0 0 18px;color:var(--slate);font-size:14px;line-height:1.45}
+.big-btns{display:grid;gap:12px}
+.big{display:flex;align-items:center;gap:14px;width:100%;padding:18px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:17px;font-weight:600;text-align:left;box-shadow:var(--shadow-sm)}
+.big.primary{background:var(--red);color:#fff;border-color:var(--red)}
+.big small{display:block;font-weight:400;font-size:12.5px;opacity:.85;margin-top:2px}
+.big .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.18);flex:none}
+.big:not(.primary) .ic{background:var(--red-soft);color:var(--red)}
+.btn{height:46px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:15px;font-weight:600}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+.btn.primary:disabled{opacity:.45;cursor-not-allowed}
+.btn.ghost{background:transparent}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.row .btn{flex:1;min-width:130px}
+.hint{display:flex;gap:8px;align-items:center;background:var(--red-soft);border:1px solid var(--red-line);color:var(--ink);padding:10px 12px;border-radius:10px;font-size:13.5px;margin-bottom:12px}
+.stage{position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.stage img{display:block;width:100%;height:auto;pointer-events:none}
+.pin{position:absolute;width:34px;height:34px;transform:translate(-50%,-100%);touch-action:none;border:0;background:none;padding:0}
+.pin svg{width:34px;height:42px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
+.pin b{position:absolute;top:6px;left:0;width:34px;text-align:center;color:#fff;font-size:13px;font-weight:700;pointer-events:none}
+.pin.done path{fill:var(--green)}
+.pin.active{z-index:5}
+.pin.active svg{transform:scale(1.15)}
+.list{margin-top:14px;display:grid;gap:8px}
+.item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.num{width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.num.done{background:var(--green)}
+.item .txt{flex:1;min-width:0;font-size:14px}
+.item .txt p{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .txt small{color:var(--muted)}
+.item button{border:0;background:none;color:var(--slate);font-size:13px;padding:4px 6px}
+.sheet-bg{position:fixed;inset:0;background:rgba(10,14,22,.5);z-index:40}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--card);border-radius:18px 18px 0 0;max-height:92vh;overflow:auto;padding:8px clamp(16px,4vw,24px) calc(18px + env(safe-area-inset-bottom));box-shadow:var(--shadow);max-width:720px;margin:0 auto}
+.grab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:6px auto 12px}
+.sheet h3{margin:0 0 12px;font-size:18px;display:flex;align-items:center;gap:8px}
+label{display:block;font-size:13px;font-weight:600;color:var(--slate);margin:12px 0 5px}
+label em{color:var(--red);font-style:normal}
+input,textarea,select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 12px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+textarea{min-height:96px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prefix{position:relative}.prefix span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.prefix input{padding-left:26px}
+.err{color:var(--red);font-size:12.5px;min-height:16px;margin-top:4px}
+.table-wrap{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+th{color:var(--slate);font-weight:600}
+.thumb{width:100%;max-height:220px;object-fit:contain;border-radius:10px;background:#000}
+.done-ic{width:74px;height:74px;border-radius:50%;background:var(--green);display:grid;place-items:center;margin:6px auto 12px}
+.center{text-align:center}
+.ids{font-family:Consolas,monospace;font-size:14px;background:var(--canvas);border:1px solid var(--line);padding:10px;border-radius:10px;margin:12px 0;word-break:break-all}
+.spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;display:inline-block;animation:sp .8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+@media (max-width:420px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" aria-hidden="true">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d71920" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg>
+  </div>
+  <div class="brand"><h1>IR Eureka</h1><p>See it. Pin it. Save it.</p></div>
+</header>
+
+<main>
+  <div class="steps" aria-hidden="true"><span id="s1" class="on"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span></div>
+
+  <section id="step-capture" class="card">
+    <h2>Got an idea?</h2>
+    <p class="sub">Take a photo of the area, machine or process you want to improve, then pin your idea right on it.</p>
+    <div class="big-btns">
+      <button type="button" class="big primary" id="btnCamera">
+        <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+        <span>Open Camera<small>Take a new photo</small></span>
+      </button>
+      <button type="button" class="big" id="btnUpload">
+        <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span>
+        <span>Upload Image<small>Choose from gallery or files</small></span>
+      </button>
+    </div>
+    <input type="file" id="fileCamera" accept="image/*" capture="environment" hidden>
+    <input type="file" id="fileUpload" accept="image/*" hidden>
+    <p class="err" id="capErr"></p>
+    <div id="draftBox" class="hint" hidden>
+      <span>You have an unsent submission saved on this device.</span>
+      <button type="button" class="btn" id="btnResume" style="height:34px;margin-left:auto">Resume</button>
+    </div>
+  </section>
+
+  <section id="step-pin" hidden>
+    <div class="hint"><svg width="18" height="18" viewBox="0 0 24 24" fill="#d71920"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/></svg>
+      <span><b>Tap the photo</b> to drop a pin. <b>Tap a pin</b> to add idea details. Drag a pin to move it.</span></div>
+    <div class="stage" id="stage"><img id="photo" alt="Captured photo"></div>
+    <div class="list" id="pinList"></div>
+    <div class="row">
+      <button type="button" class="btn ghost" id="btnRetake">Change photo</button>
+      <button type="button" class="btn primary" id="btnToReview" disabled>Review &amp; Submit</button>
+    </div>
+  </section>
+
+  <section id="step-review" class="card" hidden>
+    <h2>Review your ideas</h2>
+    <p class="sub" id="reviewWho"></p>
+    <img class="thumb" id="reviewImg" alt="Photo with pins">
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Idea</th><th>Time</th><th>Savings</th></tr></thead>
+      <tbody id="reviewBody"></tbody>
+    </table></div>
+    <p class="err" id="submitErr"></p>
+    <div class="row">
+      <button type="button" class="btn ghost" id="btnBack">Back</button>
+      <button type="button" class="btn primary" id="btnSubmit">Submit</button>
+    </div>
+  </section>
+
+  <section id="step-done" class="card center" hidden>
+    <div class="done-ic"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+    <h2>Eureka! Thank you.</h2>
+    <p class="sub">Your idea(s) were submitted to the i2V team.</p>
+    <div class="ids" id="doneIds"></div>
+    <button type="button" class="btn primary" id="btnAnother">Submit another idea</button>
+  </section>
+</main>
+<footer>Ingersoll Rand · i2V Ideas Program</footer>
+
+<div class="sheet-bg" id="sheetBg" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="grab"></div>
+  <h3 id="sheetTitle"><span class="num" id="sheetNum">1</span> Idea details</h3>
+  <label for="fDetails">Idea details <em>*</em><span class="count" id="cnt">0/1000</span></label>
+  <textarea id="fDetails" maxlength="1000" placeholder="What is the problem and what do you suggest?"></textarea>
+  <div class="err" id="eDetails"></div>
+  <label for="fTime">Time taken to execute</label>
+  <div class="two">
+    <input id="fTime" type="number" inputmode="decimal" min="0" step="0.5" placeholder="e.g. 3">
+    <select id="fUnit"><option>Hours</option><option selected>Days</option><option>Weeks</option><option>Months</option></select>
+  </div>
+  <label for="fSave">Estimated savings (USD / year)</label>
+  <div class="prefix"><span>$</span><input id="fSave" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 5000"></div>
+  <label for="fName">Your name <em>*</em></label>
+  <input id="fName" type="text" maxlength="100" autocomplete="name" placeholder="Full name">
+  <div class="err" id="eName"></div>
+  <label for="fMail">Email address <em>*</em></label>
+  <input id="fMail" type="email" maxlength="150" autocomplete="email" inputmode="email" placeholder="name@irco.com">
+  <div class="err" id="eMail"></div>
+  <div class="row">
+    <button type="button" class="btn ghost" id="btnDelPin">Delete pin</button>
+    <button type="button" class="btn primary" id="btnSavePin">Save idea</button>
+  </div>
+</div>
+
+<script>
+var CONFIG = {
+  flowUrl: "https://defaultcbcd573c126846b899ebfe11508736.55.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/27/workflows/99a38ce6626e4d4d824ab7059cd03a90/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6G033zj5t57ffXjYElbbAYefi5BPsJWWw8owQDZhIvc",
+  token: "IRE-7k3Q9-2026",
+  maxSide: 1280,
+  jpegQuality: 0.75,
+  maxPins: 10
+};
+
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var state = { image:null, pins:[], name:"", email:"", activeIdx:-1 };
+  var DRAFT_KEY = "irEurekaDraft";
+
+  try { var p = JSON.parse(localStorage.getItem("irEurekaUser") || "{}"); state.name = p.name || ""; state.email = p.email || ""; } catch(e){}
+  try { if (localStorage.getItem(DRAFT_KEY)) $("draftBox").hidden = false; } catch(e){}
+
+  function show(step){
+    ["step-capture","step-pin","step-review","step-done"].forEach(function(id, i){
+      $(id).hidden = id !== step;
+      $("s"+(i+1)).classList.toggle("on", i <= ["step-capture","step-pin","step-review","step-done"].indexOf(step));
+    });
+    window.scrollTo(0,0);
+  }
+
+  $("btnCamera").addEventListener("click", function(){ $("fileCamera").click(); });
+  $("btnUpload").addEventListener("click", function(){ $("fileUpload").click(); });
+  $("fileCamera").addEventListener("change", onFile);
+  $("fileUpload").addEventListener("change", onFile);
+
+  function onFile(e){
+    var f = e.target.files && e.target.files[0];
+    e.target.value = "";
+    $("capErr").textContent = "";
+    if (!f) return;
+    if (!/^image\//.test(f.type)) { $("capErr").textContent = "Please choose an image file."; return; }
+    var url = URL.createObjectURL(f);
+    var img = new Image();
+    img.onload = function(){
+      var s = Math.min(1, CONFIG.maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+      var c = document.createElement("canvas");
+      c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      state.image = c.toDataURL("image/jpeg", CONFIG.jpegQuality);
+      state.pins = [];
+      $("photo").src = state.image;
+      renderPins(); show("step-pin");
+    };
+    img.onerror = function(){ $("capErr").textContent = "Could not read this image. Try another photo."; };
+    img.src = url;
+  }
+  $("btnRetake").addEventListener("click", function(){
+    if (state.pins.length && !confirm("Changing the photo removes all pins. Continue?")) return;
+    show("step-capture");
+  });
+
+  var stage = $("stage");
+  var PIN_SVG = '<svg viewBox="0 0 34 42"><path d="M17 0C7.6 0 0 7.4 0 16.6 0 28.5 17 42 17 42s17-13.5 17-25.4C34 7.4 26.4 0 17 0z" fill="#d71920"/></svg>';
+
+  stage.addEventListener("click", function(e){
+    if (e.target.closest(".pin")) return;
+    if (state.pins.length >= CONFIG.maxPins) { alert("Maximum " + CONFIG.maxPins + " pins per photo."); return; }
+    var r = stage.getBoundingClientRect();
+    var x = (e.clientX - r.left) / r.width * 100, y = (e.clientY - r.top) / r.height * 100;
+    state.pins.push({ x:+x.toFixed(2), y:+y.toFixed(2), details:"", execTime:"", execUnit:"Days", savingsUSD:"" });
+    renderPins(); openSheet(state.pins.length - 1);
+  });
+
+  function renderPins(){
+    stage.querySelectorAll(".pin").forEach(function(n){ n.remove(); });
+    state.pins.forEach(function(p, i){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "pin" + (p.details ? " done" : "") + (i === state.activeIdx ? " active" : "");
+      b.style.left = p.x + "%"; b.style.top = p.y + "%";
+      b.setAttribute("aria-label", "Pin " + (i+1));
+      b.innerHTML = PIN_SVG + "<b>" + (i+1) + "</b>";
+      attachDrag(b, i); stage.appendChild(b);
+    });
+    var list = $("pinList"); list.textContent = "";
+    state.pins.forEach(function(p, i){
+      var it = document.createElement("div"); it.className = "item";
+      var n = document.createElement("span"); n.className = "num" + (p.details ? " done" : ""); n.textContent = i+1;
+      var t = document.createElement("div"); t.className = "txt";
+      var pp = document.createElement("p"); pp.textContent = p.details || "Tap to add idea details";
+      var sm = document.createElement("small");
+      sm.textContent = p.details ? [(p.execTime ? p.execTime + " " + p.execUnit : ""), (p.savingsUSD ? "$" + Number(p.savingsUSD).toLocaleString() : "")].filter(Boolean).join(" · ") : "Incomplete";
+      t.appendChild(pp); t.appendChild(sm);
+      var ed = document.createElement("button"); ed.type = "button"; ed.textContent = "Edit";
+      ed.addEventListener("click", function(){ openSheet(i); });
+      it.appendChild(n); it.appendChild(t); it.appendChild(ed); list.appendChild(it);
+    });
+    var ready = state.pins.length > 0 && state.pins.every(function(p){ return p.details; });
+    $("btnToReview").disabled = !ready;
+  }
+
+  function attachDrag(el, i){
+    var start = null, moved = false;
+    el.addEventListener("pointerdown", function(e){ start = { x:e.clientX, y:e.clientY }; moved = false; el.setPointerCapture(e.pointerId); e.preventDefault(); });
+    el.addEventListener("pointermove", function(e){
+      if (!start) return;
+      if (Math.abs(e.clientX - start.x) + Math.abs(e.clientY - start.y) > 8) moved = true;
+      if (!moved) return;
+      var r = stage.getBoundingClientRect();
+      var x = Math.min(100, Math.max(0, (e.clientX - r.left) / r.width * 100));
+      var y = Math.min(100, Math.max(0, (e.clientY - r.top) / r.height * 100));
+      state.pins[i].x = +x.toFixed(2); state.pins[i].y = +y.toFixed(2);
+      el.style.left = x + "%"; el.style.top = y + "%";
+    });
+    el.addEventListener("pointerup", function(){ var wasTap = start && !moved; start = null; if (wasTap) openSheet(i); });
+    el.addEventListener("pointercancel", function(){ start = null; });
+  }
+
+  function openSheet(i){
+    state.activeIdx = i;
+    var p = state.pins[i];
+    $("sheetNum").textContent = i+1;
+    $("fDetails").value = p.details; $("fTime").value = p.execTime; $("fUnit").value = p.execUnit;
+    $("fSave").value = p.savingsUSD; $("fName").value = state.name; $("fMail").value = state.email;
+    ["eDetails","eName","eMail"].forEach(function(id){ $(id).textContent = ""; });
+    $("cnt").textContent = p.details.length + "/1000";
+    $("sheet").hidden = false; $("sheetBg").hidden = false;
+    renderPins(); setTimeout(function(){ $("fDetails").focus(); }, 150);
+  }
+  function closeSheet(){
+    $("sheet").hidden = true; $("sheetBg").hidden = true;
+    var i = state.activeIdx; state.activeIdx = -1;
+    if (i > -1 && state.pins[i] && !state.pins[i].details) { state.pins.splice(i, 1); }
+    renderPins();
+  }
+  $("sheetBg").addEventListener("click", closeSheet);
+  $("fDetails").addEventListener("input", function(){ $("cnt").textContent = this.value.length + "/1000"; });
+  $("btnDelPin").addEventListener("click", function(){
+    state.pins.splice(state.activeIdx, 1); state.activeIdx = -1;
+    $("sheet").hidden = true; $("sheetBg").hidden = true; renderPins();
+  });
+  $("btnSavePin").addEventListener("click", function(){
+    var d = $("fDetails").value.trim(), n = $("fName").value.trim(), m = $("fMail").value.trim();
+    var ok = true;
+    $("eDetails").textContent = d.length < 5 ? (ok = false, "Please describe your idea (min 5 characters).") : "";
+    $("eName").textContent = n.length < 2 ? (ok = false, "Please enter your name.") : "";
+    $("eMail").textContent = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m) ? (ok = false, "Please enter a valid email.") : "";
+    if (!ok) return;
+    var p = state.pins[state.activeIdx];
+    p.details = d; p.execTime = $("fTime").value; p.execUnit = $("fUnit").value; p.savingsUSD = $("fSave").value;
+    state.name = n; state.email = m;
+    try { localStorage.setItem("irEurekaUser", JSON.stringify({ name:n, email:m })); } catch(e){}
+    $("sheet").hidden = true; $("sheetBg").hidden = true; state.activeIdx = -1; renderPins();
+  });
+
+  $("btnToReview").addEventListener("click", function(){
+    $("reviewWho").textContent = "Submitted by " + state.name + " (" + state.email + ")";
+    $("reviewImg").src = annotatedImage();
+    var tb = $("reviewBody"); tb.textContent = "";
+    state.pins.forEach(function(p, i){
+      var tr = document.createElement("tr");
+      [String(i+1), p.details, p.execTime ? p.execTime + " " + p.execUnit : "-", p.savingsUSD ? "$" + Number(p.savingsUSD).toLocaleString() : "-"]
+        .forEach(function(v){ var td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+    $("submitErr").textContent = ""; show("step-review");
+  });
+  $("btnBack").addEventListener("click", function(){ if (state.resume) { state.resume = null; show("step-capture"); } else show("step-pin"); });
+
+  function annotatedImage(){
+    var img = $("photo"), c = document.createElement("canvas");
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    var g = c.getContext("2d"); g.drawImage(img, 0, 0);
+    var R = Math.max(14, c.width / 45);
+    state.pins.forEach(function(p, i){
+      var x = p.x / 100 * c.width, y = p.y / 100 * c.height - R * 1.6;
+      g.beginPath(); g.moveTo(x, y + R * 1.6); g.arc(x, y, R, Math.PI * 0.8, Math.PI * 0.2, false); g.closePath();
+      g.fillStyle = "#d71920"; g.fill(); g.lineWidth = R / 6; g.strokeStyle = "#fff"; g.stroke();
+      g.fillStyle = "#fff"; g.font = "bold " + Math.round(R) + "px Segoe UI, Arial"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText(String(i+1), x, y);
+    });
+    return c.toDataURL("image/jpeg", CONFIG.jpegQuality);
+  }
+
+  function pad(n){ return String(n).padStart(2, "0"); }
+  function buildPayload(){
+    var d = new Date();
+    var stamp = d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + "-" + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+    return {
+      token: CONFIG.token,
+      submissionId: "EUR-" + stamp,
+      submittedAt: d.toISOString(),
+      name: state.name, email: state.email,
+      imageBase64: $("reviewImg").src.split(",")[1],
+      ideas: state.pins.map(function(p, i){
+        return { ideaId: "EUR-" + stamp + "-" + pad(i+1), pinNo: i+1, x: p.x, y: p.y,
+          details: p.details, execTime: p.execTime === "" ? null : Number(p.execTime), execUnit: p.execUnit,
+          savingsUSD: p.savingsUSD === "" ? null : Number(p.savingsUSD) };
+      })
+    };
+  }
+
+  $("btnSubmit").addEventListener("click", function(){ send(state.resume || buildPayload()); });
+
+  function send(payload){
+    var btn = $("btnSubmit"); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Submitting…';
+    $("submitErr").textContent = "";
+    if (CONFIG.flowUrl.indexOf("http") !== 0) { fail(payload, "Submission endpoint is not configured yet. Your draft was saved on this device."); return; }
+    fetch(CONFIG.flowUrl, { method:"POST", headers:{ "Content-Type":"text/plain;charset=UTF-8" }, body: JSON.stringify(payload) })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+      .then(function(){
+        try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
+        $("doneIds").textContent = payload.ideas.map(function(i){ return i.ideaId; }).join("\n");
+        $("draftBox").hidden = true; reset(); show("step-done");
+      })
+      .catch(function(err){ fail(payload, "Could not submit (" + err.message + "). Your draft was saved — check your connection and tap Submit again."); });
+  }
+  function fail(payload, msg){
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(payload)); } catch(e){}
+    $("submitErr").textContent = msg;
+    var btn = $("btnSubmit"); btn.disabled = false; btn.textContent = "Submit";
+  }
+  function reset(){ var btn = $("btnSubmit"); btn.disabled = false; btn.textContent = "Submit"; state.image = null; state.pins = []; state.resume = null; }
+
+  $("btnResume").addEventListener("click", function(){
+    var d; try { d = JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch(e){}
+    if (!d) { $("draftBox").hidden = true; return; }
+    $("reviewWho").textContent = "Saved draft from " + d.name + " (" + d.email + ")";
+    $("reviewImg").src = "data:image/jpeg;base64," + d.imageBase64;
+    var tb = $("reviewBody"); tb.textContent = "";
+    d.ideas.forEach(function(p){
+      var tr = document.createElement("tr");
+      [String(p.pinNo), p.details, p.execTime != null ? p.execTime + " " + p.execUnit : "-", p.savingsUSD != null ? "$" + Number(p.savingsUSD).toLocaleString() : "-"]
+        .forEach(function(v){ var td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+    state.resume = d; show("step-review");
+  });
+
+  $("btnAnother").addEventListener("click", function(){ show("step-capture"); });
+})();
+</script>
+</body>
+</html>
