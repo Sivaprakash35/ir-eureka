@@ -65,10 +65,29 @@ header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0
 .chk{display:flex;align-items:center;gap:8px;margin:0;font-weight:600;color:var(--slate);font-size:13.5px}
 .chk input{width:18px;height:18px}
 .h-by{font-weight:600;color:var(--ink)}
+.h-card{cursor:pointer}.h-card:hover{border-color:var(--red-line)}
+.who{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 12px;font-size:13.5px;color:var(--slate)}
+.who b{color:var(--ink)}
+.d-img{margin:12px 0;min-height:120px;display:grid;place-items:center;background:var(--canvas);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.d-img img{width:100%;height:auto;display:block}
+.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.d-grid div{border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.d-grid span{display:block;font-size:12px;color:var(--muted)}.d-grid b{font-size:14.5px}
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
 .kpi{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--card);text-align:center}
 .kpi b{display:block;font-size:20px}.kpi span{font-size:12px;color:var(--slate)}
-@media(max-width:560px){.brand{border-left:0;padding-left:0}.nav{margin-left:0;width:100%}.nav button{flex:1}}
+@media(max-width:560px){.brand{border-left:0;padding-left:0}.nav{margin-left:0;width:100%}.nav button{flex:1;padding:9px 6px}}
+.kpis.k4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:560px){.kpis.k4{grid-template-columns:repeat(2,1fr)}}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.chart h3{margin:0 0 10px;font-size:15px}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:12.5px;color:var(--slate)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.r-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.r-row select{height:38px;font-size:14px;padding:0 8px;width:auto}
+.r-save{height:38px;padding:0 12px;font-size:13.5px}
+.b-submitted{background:#eef2ff;color:#3730a3}.b-wip{background:#fef3c7;color:#92400e}.b-completed{background:#d1fae5;color:#065f46}
 main{max-width:720px;width:100%;margin:0 auto;padding:clamp(14px,4vw,24px)}
 .steps{display:flex;gap:6px;margin:0 0 16px}
 .steps span{flex:1;height:5px;border-radius:9px;background:var(--line)}
@@ -139,7 +158,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
   <div class="brand"><h1>IR Eureka</h1><p>i2V Ideas &middot; See it. Pin it. Save it.</p></div>
   <nav class="nav" aria-label="Main">
     <button type="button" class="active" id="tabNew">New Idea</button>
-    <button type="button" id="tabHist">Ideas Board<span class="count" id="histCount" hidden>0</span></button>
+    <button type="button" id="tabHist">My Ideas<span class="count" id="histCount" hidden>0</span></button>
+    <button type="button" id="tabRev">Reviewer</button>
   </nav>
 </div></header>
 
@@ -202,10 +222,10 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
   <section id="step-done" class="card center" hidden>
     <div class="done-ic"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
     <h2>Eureka! Thank you.</h2>
-    <p class="sub">Your idea(s) were submitted to the i2V team.</p>
+    <p class="sub">Your idea(s) were submitted to the i2V team. Check your email for your <b>access code</b> to track status under My Ideas.</p>
     <div class="ids" id="doneIds"></div>
     <div class="row">
-      <button type="button" class="btn" id="btnSeeHist">View ideas board</button>
+      <button type="button" class="btn" id="btnSeeHist">View my ideas</button>
       <button type="button" class="btn primary" id="btnAnother">Submit another idea</button>
     </div>
   </section>
@@ -213,23 +233,39 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 
   <!-- HISTORY -->
   <div id="viewHist" hidden>
-    <div class="hero" id="step-history"><h2>Ideas board</h2><p>All i2V ideas and their live status from the ideas register. <span id="hUpdated"></span></p></div>
+    <div class="hero" id="step-history"><h2>My ideas</h2><p>Track the live status of your ideas. <span id="hUpdated"></span></p></div>
+
+    <div class="card" id="loginCard">
+      <h2 style="font-size:18px">Sign in to see your ideas</h2>
+      <p class="sub">Use the email you submitted with and the 6-digit access code from your IR Eureka confirmation email.</p>
+      <label for="lMail">Email</label>
+      <input id="lMail" type="email" inputmode="email" autocomplete="email" placeholder="name@irco.com">
+      <label for="lCode">Access code</label>
+      <input id="lCode" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="40" placeholder="6-digit code">
+      <p class="err" id="lErr"></p>
+      <div class="row"><button type="button" class="btn primary" id="btnLogin">Show my ideas</button></div>
+      <div class="row" style="margin-top:8px"><button type="button" class="btn ghost" id="btnSendCode">Email me my access code</button></div>
+      <p class="sub" id="lInfo" role="status" style="margin:8px 0 0;color:#166534"></p>
+      <p class="sub" style="margin:12px 0 0;font-size:12.5px">New or forgot your code? Enter your email and tap <b>Email me my access code</b>. i2V reviewers: sign in with the reviewer code to see all ideas.</p>
+    </div>
+
+    <div id="boardBox" hidden>
+    <div class="who"><span id="whoTxt"></span><button type="button" class="btn ghost" id="btnLogout" style="height:34px">Sign out</button></div>
     <div class="kpis" id="hKpis">
       <div class="kpi"><b id="kCount">0</b><span>Ideas</span></div>
       <div class="kpi"><b id="kSave">$0</b><span>Est. savings</span></div>
-      <div class="kpi"><b id="kDone">0</b><span>Approved / Done</span></div>
+      <div class="kpi"><b id="kDone">0</b><span>Completed</span></div>
     </div>
     <div class="card">
       <div class="filters">
         <input id="fq" type="search" placeholder="Search idea, ID or name" aria-label="Search">
         <select id="fStatus" aria-label="Status"><option value="">All status</option></select>
-        <select id="fPerson" aria-label="Submitted by"><option value="">All people</option></select>
+        <select id="fPerson" aria-label="Submitted by" hidden><option value="">All people</option></select>
         <select id="fMonth" aria-label="Month"><option value="">All months</option></select>
         <select id="fSort" aria-label="Sort">
           <option value="new">Newest first</option><option value="old">Oldest first</option>
           <option value="save">Highest savings</option><option value="time">Quickest to execute</option>
         </select>
-        <label class="chk"><input type="checkbox" id="fMine"> My ideas only</label>
       </div>
       <div class="row" style="margin-top:10px">
         <button type="button" class="btn ghost" id="btnClear">Clear filters</button>
@@ -239,9 +275,66 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
       <p class="sub" id="hShown" style="margin:4px 0 0"></p>
       <div class="list" id="hList"></div>
     </div>
+    </div>
+  </div>
+  <!-- REVIEWER -->
+  <div id="viewRev" hidden>
+    <div class="hero"><h2>Reviewer dashboard</h2><p>All i2V ideas, savings and progress. <span id="rUpdated"></span></p></div>
+
+    <div class="card" id="rLogin">
+      <h2 style="font-size:18px">Reviewer sign in</h2>
+      <p class="sub">For the i2V review team only.</p>
+      <label for="rMail">Your email</label>
+      <input id="rMail" type="email" inputmode="email" autocomplete="email" placeholder="name@irco.com">
+      <label for="rCode">Reviewer code</label>
+      <input id="rCode" type="password" autocomplete="off" maxlength="60" placeholder="Reviewer code">
+      <p class="err" id="rErr"></p>
+      <div class="row"><button type="button" class="btn primary" id="btnRLogin">Open dashboard</button></div>
+    </div>
+
+    <div id="rBox" hidden>
+      <div class="who"><span id="rWho"></span>
+        <span><button type="button" class="btn" id="btnRRefresh" style="height:34px">Refresh</button>
+        <button type="button" class="btn ghost" id="btnRLogout" style="height:34px">Sign out</button></span></div>
+      <div class="kpis k4">
+        <div class="kpi"><b id="rkCount">0</b><span>Ideas</span></div>
+        <div class="kpi"><b id="rkSave">$0</b><span>Est. savings / yr</span></div>
+        <div class="kpi"><b id="rkDone">0%</b><span>Completed</span></div>
+        <div class="kpi"><b id="rkPeople">0</b><span>Contributors</span></div>
+      </div>
+      <div class="charts">
+        <div class="card chart"><h3>Ideas by status</h3><div id="chStatus"></div></div>
+        <div class="card chart"><h3>Ideas per month</h3><div id="chMonth"></div></div>
+        <div class="card chart"><h3>Savings by status ($/yr)</h3><div id="chSave"></div></div>
+        <div class="card chart"><h3>Top contributors</h3><div id="chPeople"></div></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin:0 0 10px">Manage ideas</h3>
+        <div class="filters">
+          <input id="rq" type="search" placeholder="Search idea, ID or name" aria-label="Search">
+          <select id="rStatus" aria-label="Status"><option value="">All status</option></select>
+          <select id="rPerson" aria-label="Person"><option value="">All people</option></select>
+          <select id="rMonth" aria-label="Month"><option value="">All months</option></select>
+        </div>
+        <p class="err" id="rListErr"></p>
+        <p class="sub" id="rShown" style="margin:4px 0 0"></p>
+        <div class="list" id="rList"></div>
+      </div>
+    </div>
   </div>
 </main>
 <footer>Ingersoll Rand · i2V Ideas Program</footer>
+
+<!-- IDEA DETAIL -->
+<div class="sheet-bg" id="dBg" hidden></div>
+<div class="sheet" id="dSheet" role="dialog" aria-modal="true" aria-labelledby="dTitle" hidden>
+  <div class="grab"></div>
+  <div class="h-top"><h3 id="dTitle" style="margin:0">Idea</h3><span class="badge" id="dBadge"></span></div>
+  <div class="d-img" id="dImgBox"><span class="sub" id="dImgMsg">Loading photo…</span><img id="dImg" alt="Idea photo" hidden></div>
+  <p class="h-txt" id="dText" style="white-space:pre-wrap"></p>
+  <div class="d-grid" id="dGrid"></div>
+  <div class="row"><button type="button" class="btn" id="dClose">Close</button></div>
+</div>
 
 <!-- PIN FORM SHEET -->
 <div class="sheet-bg" id="sheetBg" hidden></div>
@@ -454,19 +547,74 @@ var CONFIG = {
     if (state.resume) { state.resume = null; show("step-capture"); } else show("step-pin");
   });
 
+  function wrapLines(g, text, maxW, maxLines){
+    var words = String(text).split(/\s+/), lines = [], cur = "";
+    for (var k = 0; k < words.length; k++) {
+      var t = cur ? cur + " " + words[k] : words[k];
+      if (g.measureText(t).width > maxW && cur) { lines.push(cur); cur = words[k]; } else cur = t;
+      if (lines.length === maxLines) break;
+    }
+    if (lines.length < maxLines && cur) lines.push(cur);
+    if (lines.length === maxLines && lines.join(" ").length < String(text).length) {
+      var last = lines[maxLines - 1];
+      while (last && g.measureText(last + "\u2026").width > maxW) last = last.slice(0, -1);
+      lines[maxLines - 1] = last + "\u2026";
+    }
+    return lines;
+  }
+
+  // Photo on the left, white callout panel on the right; leader lines join each pin to its callout.
   function annotatedImage(){
-    var img = $("photo"), c = document.createElement("canvas");
-    c.width = img.naturalWidth; c.height = img.naturalHeight;
-    var g = c.getContext("2d"); g.drawImage(img, 0, 0);
-    var R = Math.max(14, c.width / 45);
+    var img = $("photo"), W = img.naturalWidth, H = img.naturalHeight;
+    var S = Math.max(W, H) / 1000;                       // scale unit
+    var PW = Math.round(Math.max(W * 0.55, 420 * S));    // panel width
+    var c = document.createElement("canvas");
+    c.width = W + PW; c.height = H;
+    var g = c.getContext("2d");
+    g.fillStyle = "#ffffff"; g.fillRect(0, 0, c.width, c.height);
+    g.drawImage(img, 0, 0);
+    g.fillStyle = "#d71920"; g.fillRect(W, 0, PW, Math.round(46 * S));
+    g.fillStyle = "#fff"; g.font = "bold " + Math.round(22 * S) + "px Segoe UI, Arial"; g.textBaseline = "middle"; g.textAlign = "left";
+    g.fillText("IR Eureka \u00b7 i2V ideas", W + 16 * S, 23 * S);
+
+    var pad = 14 * S, top = 46 * S + pad, n = state.pins.length;
+    var slot = (H - top - pad) / Math.max(n, 1), boxH = Math.min(slot - pad, 190 * S), bx = W + pad, bw = PW - pad * 2;
+    var order = state.pins.map(function(p, i){ return { p:p, i:i }; }).sort(function(a, b){ return a.p.y - b.p.y; });
+    var R = Math.max(12 * S, 14);
+    order.forEach(function(o, k){
+      var p = o.p, by = top + k * slot, px = p.x / 100 * W, py = p.y / 100 * H;
+      // leader line
+      g.strokeStyle = "#d71920"; g.lineWidth = Math.max(2, 3 * S);
+      g.beginPath(); g.moveTo(px, py); g.lineTo(W + pad * 0.5, by + boxH / 2); g.lineTo(bx, by + boxH / 2); g.stroke();
+      // box
+      g.fillStyle = "#ffffff"; g.strokeStyle = "#172033"; g.lineWidth = Math.max(1.5, 2 * S);
+      g.beginPath(); if (g.roundRect) g.roundRect(bx, by, bw, boxH, 10 * S); else g.rect(bx, by, bw, boxH); g.fill(); g.stroke();
+      // number badge
+      g.fillStyle = "#d71920"; g.beginPath(); g.arc(bx + 22 * S, by + 22 * S, 14 * S, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#fff"; g.textAlign = "center"; g.font = "bold " + Math.round(15 * S) + "px Segoe UI, Arial";
+      g.fillText(String(o.i + 1), bx + 22 * S, by + 22.5 * S);
+      // savings + time
+      g.textAlign = "left"; g.fillStyle = "#16a34a"; g.font = "bold " + Math.round(17 * S) + "px Segoe UI, Arial";
+      var meta = [p.savingsUSD ? "$" + Number(p.savingsUSD).toLocaleString() + "/yr" : "", p.execTime ? p.execTime + " " + p.execUnit : ""].filter(Boolean).join("  \u00b7  ");
+      g.fillText(meta || "Idea " + (o.i + 1), bx + 44 * S, by + 22.5 * S);
+      // idea text
+      g.fillStyle = "#172033"; g.font = Math.round(15 * S) + "px Segoe UI, Arial"; g.textBaseline = "top";
+      var lh = 19 * S, maxLines = Math.max(1, Math.floor((boxH - 48 * S) / lh));
+      wrapLines(g, p.details, bw - 24 * S, maxLines).forEach(function(line, li){ g.fillText(line, bx + 12 * S, by + 42 * S + li * lh); });
+      g.textBaseline = "middle";
+    });
+    // pins on top
     state.pins.forEach(function(p, i){
-      var x = p.x / 100 * c.width, y = p.y / 100 * c.height - R * 1.6;
+      var x = p.x / 100 * W, y = p.y / 100 * H - R * 1.6;
       g.beginPath(); g.moveTo(x, y + R * 1.6); g.arc(x, y, R, Math.PI * 0.8, Math.PI * 0.2, false); g.closePath();
       g.fillStyle = "#d71920"; g.fill(); g.lineWidth = R / 6; g.strokeStyle = "#fff"; g.stroke();
-      g.fillStyle = "#fff"; g.font = "bold " + Math.round(R) + "px Segoe UI, Arial"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillStyle = "#fff"; g.font = "bold " + Math.round(R) + "px Segoe UI, Arial"; g.textAlign = "center";
       g.fillText(String(i+1), x, y);
     });
-    return c.toDataURL("image/jpeg", CONFIG.jpegQuality);
+    // keep the upload small: cap the longest side at maxSide
+    var s = Math.min(1, CONFIG.maxSide * 1.4 / Math.max(c.width, c.height));
+    if (s < 1) { var c2 = document.createElement("canvas"); c2.width = Math.round(c.width * s); c2.height = Math.round(c.height * s); c2.getContext("2d").drawImage(c, 0, 0, c2.width, c2.height); c = c2; }
+    return c.toDataURL("image/jpeg", 0.8);
   }
 
   /* ---------- Submit ---------- */
@@ -478,7 +626,7 @@ var CONFIG = {
       token: CONFIG.token,
       submissionId: "EUR-" + stamp,
       submittedAt: d.toISOString(),
-      name: state.name, email: state.email,
+      name: state.name, email: state.email.trim().toLowerCase(),
       imageBase64: $("reviewImg").src.split(",")[1],
       ideas: state.pins.map(function(p, i){
         return { ideaId: "EUR-" + stamp + "-" + pad(i+1), pinNo: i+1, x: p.x, y: p.y,
@@ -540,16 +688,24 @@ var CONFIG = {
 
   /* ---------- Tabs ---------- */
   function openTab(t){
-    $("viewNew").hidden = t !== "new"; $("viewHist").hidden = t !== "hist";
-    $("tabNew").classList.toggle("active", t === "new"); $("tabHist").classList.toggle("active", t === "hist");
+    $("viewNew").hidden = t !== "new"; $("viewHist").hidden = t !== "hist"; $("viewRev").hidden = t !== "rev";
+    $("tabNew").classList.toggle("active", t === "new"); $("tabHist").classList.toggle("active", t === "hist"); $("tabRev").classList.toggle("active", t === "rev");
+    clearInterval(board.timer); clearInterval(rev.timer);
     if (t === "hist") {
-      if (!board.rows || !board.loadedAt || Date.now() - board.loadedAt > 15000) loadBoard();
-      clearInterval(board.timer); board.timer = setInterval(function(){ if (!document.hidden) loadBoard(); }, REFRESH_MS);
-    } else clearInterval(board.timer);
+      showAuthState();
+      if (getAuth() && (!board.rows || !board.loadedAt || Date.now() - board.loadedAt > 15000)) loadBoard();
+      board.timer = setInterval(function(){ if (!document.hidden) loadBoard(); }, REFRESH_MS);
+    }
+    if (t === "rev") {
+      showRevState();
+      if (getRevAuth() && (!rev.rows || Date.now() - rev.loadedAt > 15000)) loadRev();
+      rev.timer = setInterval(function(){ if (!document.hidden && !rev.saving) loadRev(); }, REFRESH_MS);
+    }
     window.scrollTo(0,0);
   }
   $("tabNew").addEventListener("click", function(){ openTab("new"); });
   $("tabHist").addEventListener("click", function(){ openTab("hist"); });
+  $("tabRev").addEventListener("click", function(){ openTab("rev"); });
 
   /* ---------- History ---------- */
   var LOCAL_KEY = "irEurekaSent";
@@ -567,15 +723,16 @@ var CONFIG = {
   function updateCount(){ $("histCount").hidden = true; }
   updateCount();
 
-  function badgeClass(s){
+  var STATUSES = ["Submitted", "WIP", "Completed", "Rejected"];
+  var STATUS_COLOR = { Submitted:"#6366f1", WIP:"#f59e0b", Completed:"#16a34a", Rejected:"#d71920" };
+  function statusOf(s){
     s = String(s || "").toLowerCase();
-    if (/reject|declin|closed/.test(s)) return "b-rejected";
-    if (/done|implement|complete/.test(s)) return "b-done";
-    if (/approv/.test(s)) return "b-approved";
-    if (/review|progress|hold/.test(s)) return "b-review";
-    if (/submitted/.test(s)) return "b-local";
-    return "b-new";
+    if (/reject|declin|closed/.test(s)) return "Rejected";
+    if (/done|implement|complete|approv/.test(s)) return "Completed";
+    if (/wip|review|progress|hold/.test(s)) return "WIP";
+    return "Submitted";
   }
+  function badgeClass(s){ return "b-" + statusOf(s).toLowerCase(); }
   function fmtDate(v){
     if (v === null || v === undefined || v === "") return "";
     var d = typeof v === "number" || /^\d+(\.\d+)?$/.test(String(v)) ? new Date(Math.round((Number(v) - 25569) * 864e5)) : new Date(v);
@@ -583,18 +740,43 @@ var CONFIG = {
   }
   function toDate(v){
     if (v === null || v === undefined || v === "") return null;
-    var d = typeof v === "number" || /^\d+(\.\d+)?$/.test(String(v)) ? new Date(Math.round((Number(v) - 25569) * 864e5)) : new Date(String(v).replace(" ", "T"));
+    var d = typeof v === "number" || /^\d+(\.\d+)?$/.test(String(v)) ? new Date(Math.round((Number(v) - 25569) * 864e5)) : new Date(String(v).replace(" ", "T").replace(/(\.\d+)?Z$/, ""));
     return isNaN(d) ? null : d;
   }
   function monthKey(d){ return d ? d.getFullYear() + "-" + pad(d.getMonth()+1) : ""; }
   function monthLabel(k){ var p = k.split("-"); return new Date(+p[0], +p[1]-1, 1).toLocaleDateString(undefined, { month:"short", year:"numeric" }); }
   var UNIT_H = { hours:1, days:8, weeks:40, months:160 };
 
-  var board = { rows:null, loading:false, loadedAt:null, timer:null };
+  var board = { rows:null, loading:false, loadedAt:null, timer:null, admin:false };
   var REFRESH_MS = 60000;
+  var AUTH_KEY = "irEurekaAuth";
+  function getAuth(){ try { return JSON.parse(localStorage.getItem(AUTH_KEY) || "null"); } catch(e){ return null; } }
+  function setAuth(a){ try { if (a) localStorage.setItem(AUTH_KEY, JSON.stringify(a)); else localStorage.removeItem(AUTH_KEY); } catch(e){} }
+  function showAuthState(){
+    var a = getAuth();
+    $("loginCard").hidden = !!a; $("boardBox").hidden = !a;
+    if (!a) { $("lMail").value = $("lMail").value || state.email || ""; return; }
+    $("whoTxt").innerHTML = "";
+    var b = document.createElement("b"); b.textContent = a.email;
+    $("whoTxt").appendChild(document.createTextNode(board.admin ? "Reviewer view · " : "Signed in as "));
+    $("whoTxt").appendChild(b);
+    $("fPerson").hidden = !board.admin;
+  }
+  function postBoard(extra, auth){
+    var a = auth || getAuth() || {};
+    var body = { token: CONFIG.token, email: a.email || "", code: a.code || "" };
+    for (var k in extra) body[k] = extra[k];
+    return fetch(CONFIG.historyUrl, { method:"POST", headers:{ "Content-Type":"text/plain;charset=UTF-8" }, body: JSON.stringify(body) })
+      .then(function(r){
+        if (r.status === 401 || r.status === 403) { var e = new Error("Email or access code is not correct"); e.auth = true; throw e; }
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.text().then(function(t){ try { return JSON.parse(t); } catch(e){ return t; } });
+      });
+  }
 
   function loadBoard(){
     if (board.loading) return;
+    if (!getAuth()) { showAuthState(); return; }
     $("hErr").textContent = "";
     if (CONFIG.historyUrl.indexOf("http") !== 0) {
       $("hErr").textContent = "Live board is not configured yet. Showing ideas sent from this device.";
@@ -602,18 +784,83 @@ var CONFIG = {
     }
     board.loading = true;
     var btn = $("btnRefresh"); btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-color:rgba(0,0,0,.15);border-top-color:#172033"></span>Loading\u2026';
-    fetch(CONFIG.historyUrl, { method:"POST", headers:{ "Content-Type":"text/plain;charset=UTF-8" }, body: JSON.stringify({ token: CONFIG.token, action: "list" }) })
-      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    postBoard({ action: "list" })
       .then(function(d){
-        board.rows = (Array.isArray(d) ? d : (d.value || d.ideas || [])).filter(function(r){ return r && r.IdeaID; });
-        board.loadedAt = new Date(); fillFilters(); applyFilters();
+        var rows = Array.isArray(d) ? d : (d.rows || d.value || d.ideas || []);
+        board.admin = !Array.isArray(d) && d.role === "admin";
+        board.rows = rows.filter(function(r){ return r && r.IdeaID; });
+        board.loadedAt = new Date(); showAuthState(); fillFilters(); applyFilters();
       })
       .catch(function(err){
-        $("hErr").textContent = "Could not load the live board (" + err.message + ").";
-        if (!board.rows) { board.rows = getLocal(); fillFilters(); applyFilters(); }
+        if (err.auth) { setAuth(null); board.rows = null; showAuthState(); $("lErr").textContent = err.message + ". Please try again."; return; }
+        $("hErr").textContent = "Could not load your ideas (" + err.message + ").";
       })
       .then(function(){ board.loading = false; btn.disabled = false; btn.textContent = "Refresh"; });
   }
+
+  $("btnLogin").addEventListener("click", function(){
+    var m = $("lMail").value.trim(), c = $("lCode").value.trim();
+    $("lErr").textContent = "";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m)) { $("lErr").textContent = "Please enter a valid email."; return; }
+    if (c.length < 4) { $("lErr").textContent = "Please enter your access code."; return; }
+    setAuth({ email: m.toLowerCase(), code: c }); board.rows = null; loadBoard();
+  });
+  $("lCode").addEventListener("keydown", function(e){ if (e.key === "Enter") $("btnLogin").click(); });
+  $("btnSendCode").addEventListener("click", function(){
+    var m = $("lMail").value.trim().toLowerCase(), btn = $("btnSendCode");
+    $("lErr").textContent = ""; $("lInfo").textContent = "";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m)) { $("lErr").textContent = "Enter your email first."; return; }
+    if (CONFIG.historyUrl.indexOf("http") !== 0) { $("lErr").textContent = "Not configured yet."; return; }
+    btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-color:rgba(0,0,0,.15);border-top-color:#172033"></span>Sending\u2026';
+    fetch(CONFIG.historyUrl, { method:"POST", headers:{ "Content-Type":"text/plain;charset=UTF-8" }, body: JSON.stringify({ token: CONFIG.token, action: "sendcode", email: m }) })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); })
+      .then(function(){ $("lInfo").textContent = "If this email has submitted ideas, the access code has been sent to it. Check your inbox (and Junk)."; $("lCode").focus(); })
+      .catch(function(err){ $("lErr").textContent = "Could not send the code (" + err.message + "). Try again later."; })
+      .then(function(){ btn.disabled = false; btn.textContent = "Email me my access code"; });
+  });
+  $("btnLogout").addEventListener("click", function(){
+    setAuth(null); board.rows = null; board.admin = false; $("lCode").value = ""; $("hList").textContent = ""; showAuthState();
+  });
+
+  /* ---------- Idea detail ---------- */
+  var imgCache = {};
+  function openDetail(r, auth){
+    $("dTitle").textContent = r.IdeaID || "Idea";
+    $("dBadge").className = "badge " + badgeClass(r.Status); $("dBadge").textContent = statusOf(r.Status);
+    $("dText").textContent = r.IdeaDetails || "";
+    var d = toDate(r.Timestamp), grid = $("dGrid"); grid.textContent = "";
+    [["Submitted by", r.Name], ["Date", d ? d.toLocaleString(undefined, { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" }) : ""],
+     ["Time to execute", r.ExecTime ? r.ExecTime + " " + (r.ExecUnit || "") : "-"], ["Est. savings / yr", Number(r.SavingsUSD) ? "$" + Number(r.SavingsUSD).toLocaleString() : "-"]]
+      .forEach(function(kv){ var x = document.createElement("div"), s = document.createElement("span"), b = document.createElement("b"); s.textContent = kv[0]; b.textContent = kv[1] || "-"; x.appendChild(s); x.appendChild(b); grid.appendChild(x); });
+    $("dImg").hidden = true; $("dImgMsg").hidden = false; $("dImgMsg").textContent = "Loading photo\u2026";
+    $("dSheet").hidden = false; $("dBg").hidden = false;
+    var id = r.IdeaID;
+    var showImg = function(src){ if ($("dTitle").textContent !== id) return; $("dImg").src = src; $("dImg").hidden = false; $("dImgMsg").hidden = true; };
+    if (imgCache[id]) { showImg(imgCache[id]); return; }
+    if (CONFIG.historyUrl.indexOf("http") !== 0) { $("dImgMsg").textContent = "Photo preview is not available."; return; }
+    var a = auth || getAuth() || {};
+    // The flow returns the JPEG file itself; older versions returned base64 JSON.
+    fetch(CONFIG.historyUrl, { method:"POST", headers:{ "Content-Type":"text/plain;charset=UTF-8" },
+      body: JSON.stringify({ token: CONFIG.token, email: a.email || "", code: a.code || "", action: "image", ideaId: id }) })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.arrayBuffer(); })
+      .then(function(buf){
+        var bytes = new Uint8Array(buf);
+        if (bytes.length < 100) throw new Error("no photo");
+        var src;
+        if (bytes[0] === 0xFF && bytes[1] === 0xD8) src = URL.createObjectURL(new Blob([buf], { type:"image/jpeg" }));
+        else {
+          var res = JSON.parse(new TextDecoder().decode(bytes));
+          var b64 = res.image || res.$content || "";
+          if (!b64) throw new Error("no photo");
+          src = "data:image/jpeg;base64," + b64;
+        }
+        imgCache[id] = src; showImg(src);
+      })
+      .catch(function(){ if ($("dTitle").textContent === id) $("dImgMsg").textContent = "Photo could not be loaded."; });
+  }
+  function closeDetail(){ $("dSheet").hidden = true; $("dBg").hidden = true; }
+  $("dClose").addEventListener("click", closeDetail);
+  $("dBg").addEventListener("click", closeDetail);
 
   function fillSelect(sel, values, label, fmt){
     var cur = sel.value; sel.textContent = "";
@@ -624,7 +871,7 @@ var CONFIG = {
   function uniq(a){ return a.filter(function(v, i){ return v && a.indexOf(v) === i; }); }
   function fillFilters(){
     var rows = board.rows || [];
-    fillSelect($("fStatus"), uniq(rows.map(function(r){ return r.Status || "New"; })).sort(), "All status");
+    fillSelect($("fStatus"), uniq(rows.map(function(r){ return statusOf(r.Status); })).sort(), "All status");
     fillSelect($("fPerson"), uniq(rows.map(function(r){ return String(r.Name || "").trim(); })).sort(), "All people");
     fillSelect($("fMonth"), uniq(rows.map(function(r){ return monthKey(toDate(r.Timestamp)); })).sort().reverse(), "All months", monthLabel);
   }
@@ -632,12 +879,10 @@ var CONFIG = {
   function applyFilters(){
     var rows = board.rows || [];
     var q = $("fq").value.trim().toLowerCase(), st = $("fStatus").value, pe = $("fPerson").value, mo = $("fMonth").value;
-    var mine = $("fMine").checked, me = (state.name || "").trim().toLowerCase();
     var out = rows.filter(function(r){
-      if (st && (r.Status || "New") !== st) return false;
+      if (st && statusOf(r.Status) !== st) return false;
       if (pe && String(r.Name || "").trim() !== pe) return false;
       if (mo && monthKey(toDate(r.Timestamp)) !== mo) return false;
-      if (mine && (!me || String(r.Name || "").trim().toLowerCase() !== me)) return false;
       if (q && [r.IdeaID, r.IdeaDetails, r.Name].join(" ").toLowerCase().indexOf(q) < 0) return false;
       return true;
     });
@@ -659,16 +904,16 @@ var CONFIG = {
   function renderBoard(src, total){
     var list = $("hList"); list.textContent = "";
     var save = 0, done = 0;
-    src.forEach(function(r){ save += Number(r.SavingsUSD) || 0; if (/approv|done|implement|complete/i.test(r.Status)) done++; });
+    src.forEach(function(r){ save += Number(r.SavingsUSD) || 0; if (statusOf(r.Status) === "Completed") done++; });
     $("kCount").textContent = src.length; $("kSave").textContent = "$" + save.toLocaleString(); $("kDone").textContent = done;
     $("hShown").textContent = "Showing " + src.length + " of " + total + " ideas";
     $("hUpdated").textContent = board.loadedAt ? "Updated " + board.loadedAt.toLocaleTimeString(undefined, { hour:"2-digit", minute:"2-digit" }) + "." : "";
-    if (!src.length) { var p = document.createElement("p"); p.className = "sub"; p.textContent = total ? "No ideas match these filters." : "No ideas yet. Be the first!"; list.appendChild(p); return; }
+    if (!src.length) { var p = document.createElement("p"); p.className = "sub"; p.textContent = total ? "No ideas match these filters." : "No ideas found for this email and access code. Check the code in your IR Eureka email."; list.appendChild(p); return; }
     src.slice(0, 300).forEach(function(r){
       var c = document.createElement("div"); c.className = "h-card";
       var top = document.createElement("div"); top.className = "h-top";
       var id = document.createElement("span"); id.className = "h-id"; id.textContent = r.IdeaID || "";
-      var b = document.createElement("span"); b.className = "badge " + badgeClass(r.Status); b.textContent = r.Status || "New";
+      var b = document.createElement("span"); b.className = "badge " + badgeClass(r.Status); b.textContent = statusOf(r.Status);
       top.appendChild(id); top.appendChild(b);
       var t = document.createElement("p"); t.className = "h-txt"; t.textContent = r.IdeaDetails || "";
       var m = document.createElement("div"); m.className = "h-meta";
@@ -679,17 +924,194 @@ var CONFIG = {
         Number(r.SavingsUSD) ? "$" + Number(r.SavingsUSD).toLocaleString() : ""].filter(Boolean).join(" \u00b7 ");
       m.appendChild(by); m.appendChild(document.createTextNode((r.Name && rest ? " \u00b7 " : "") + rest));
       c.appendChild(top); c.appendChild(t); c.appendChild(m); list.appendChild(c);
+      c.tabIndex = 0; c.setAttribute("role", "button");
+      c.addEventListener("click", function(){ openDetail(r); });
+      c.addEventListener("keydown", function(e){ if (e.key === "Enter") openDetail(r); });
+
     });
   }
 
   ["fq"].forEach(function(id){ $(id).addEventListener("input", applyFilters); });
-  ["fStatus","fPerson","fMonth","fSort","fMine"].forEach(function(id){ $(id).addEventListener("change", applyFilters); });
+  ["fStatus","fPerson","fMonth","fSort"].forEach(function(id){ $(id).addEventListener("change", applyFilters); });
   $("btnClear").addEventListener("click", function(){
     $("fq").value = ""; ["fStatus","fPerson","fMonth"].forEach(function(id){ $(id).value = ""; });
-    $("fSort").value = "new"; $("fMine").checked = false; applyFilters();
+    $("fSort").value = "new"; applyFilters();
   });
   $("btnRefresh").addEventListener("click", loadBoard);
-  document.addEventListener("visibilitychange", function(){ if (!document.hidden && !$("viewHist").hidden) loadBoard(); });
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden && !$("viewHist").hidden && getAuth()) loadBoard(); });
+
+  /* ---------- Reviewer ---------- */
+  var rev = { rows:null, loadedAt:0, timer:null, saving:false };
+  var REV_KEY = "irEurekaReviewer";
+  function getRevAuth(){ try { return JSON.parse(localStorage.getItem(REV_KEY) || "null"); } catch(e){ return null; } }
+  function setRevAuth(a){ try { if (a) localStorage.setItem(REV_KEY, JSON.stringify(a)); else localStorage.removeItem(REV_KEY); } catch(e){} }
+  function showRevState(){
+    var a = getRevAuth();
+    $("rLogin").hidden = !!a; $("rBox").hidden = !a;
+    if (a) { $("rWho").textContent = "Reviewer: " + a.email; } else if (!$("rMail").value) $("rMail").value = state.email || "";
+  }
+  function loadRev(){
+    var a = getRevAuth(); if (!a) { showRevState(); return; }
+    $("rListErr").textContent = "";
+    var btn = $("btnRRefresh"); btn.disabled = true; btn.textContent = "Loading\u2026";
+    postBoard({ action: "list" }, a)
+      .then(function(d){
+        if (Array.isArray(d) || d.role !== "admin") { var e = new Error("Reviewer code is not correct"); e.auth = true; throw e; }
+        rev.rows = (d.rows || []).filter(function(r){ return r && r.IdeaID; });
+        rev.loadedAt = Date.now();
+        $("rUpdated").textContent = "Updated " + new Date().toLocaleTimeString(undefined, { hour:"2-digit", minute:"2-digit" }) + ".";
+        showRevState(); fillRevFilters(); renderRev();
+      })
+      .catch(function(err){
+        if (err.auth) { setRevAuth(null); rev.rows = null; showRevState(); $("rErr").textContent = err.message + "."; return; }
+        $("rListErr").textContent = "Could not load ideas (" + err.message + ").";
+      })
+      .then(function(){ btn.disabled = false; btn.textContent = "Refresh"; });
+  }
+  $("btnRLogin").addEventListener("click", function(){
+    var m = $("rMail").value.trim().toLowerCase(), c = $("rCode").value.trim();
+    $("rErr").textContent = "";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m)) { $("rErr").textContent = "Please enter a valid email."; return; }
+    if (!c) { $("rErr").textContent = "Please enter the reviewer code."; return; }
+    setRevAuth({ email: m, code: c }); loadRev();
+  });
+  $("rCode").addEventListener("keydown", function(e){ if (e.key === "Enter") $("btnRLogin").click(); });
+  $("btnRLogout").addEventListener("click", function(){ setRevAuth(null); rev.rows = null; $("rCode").value = ""; showRevState(); });
+  $("btnRRefresh").addEventListener("click", loadRev);
+
+  function fillRevFilters(){
+    var rows = rev.rows || [];
+    fillSelect($("rStatus"), STATUSES, "All status");
+    fillSelect($("rPerson"), uniq(rows.map(function(r){ return String(r.Name || "").trim(); })).sort(), "All people");
+    fillSelect($("rMonth"), uniq(rows.map(function(r){ return monthKey(toDate(r.Timestamp)); })).sort().reverse(), "All months", monthLabel);
+  }
+  ["rStatus","rPerson","rMonth"].forEach(function(id){ $(id).addEventListener("change", renderRev); });
+  $("rq").addEventListener("input", renderRev);
+
+  /* -- small SVG chart helpers (no external libraries) -- */
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, text){ var n = document.createElementNS(SVGNS, tag); for (var k in attrs) n.setAttribute(k, attrs[k]); if (text != null) n.textContent = text; return n; }
+  function money(v){ v = Number(v) || 0; return v >= 1e6 ? "$" + (v/1e6).toFixed(1) + "M" : v >= 1e3 ? "$" + (v/1e3).toFixed(v >= 1e4 ? 0 : 1) + "k" : "$" + Math.round(v); }
+  function donut(box, items){
+    box.textContent = "";
+    var total = items.reduce(function(s, i){ return s + i.v; }, 0);
+    var svg = el("svg", { viewBox:"0 0 220 220", role:"img", "aria-label":"Ideas by status" });
+    var r = 80, cx = 110, cy = 110, C = 2 * Math.PI * r, off = 0;
+    svg.appendChild(el("circle", { cx:cx, cy:cy, r:r, fill:"none", stroke:"#eef1f5", "stroke-width":34 }));
+    items.forEach(function(i){
+      if (!i.v) return;
+      var len = i.v / total * C;
+      var c = el("circle", { cx:cx, cy:cy, r:r, fill:"none", stroke:i.c, "stroke-width":34, "stroke-dasharray":len + " " + (C - len), "stroke-dashoffset":-off, transform:"rotate(-90 110 110)" });
+      c.appendChild(el("title", {}, i.k + ": " + i.v)); svg.appendChild(c); off += len;
+    });
+    svg.appendChild(el("text", { x:cx, y:cy - 2, "text-anchor":"middle", "font-size":34, "font-weight":700, fill:"#172033" }, String(total)));
+    svg.appendChild(el("text", { x:cx, y:cy + 22, "text-anchor":"middle", "font-size":13, fill:"#556176" }, "ideas"));
+    var wrap = document.createElement("div"); wrap.style.maxWidth = "220px"; wrap.style.margin = "0 auto"; wrap.appendChild(svg); box.appendChild(wrap);
+    var lg = document.createElement("div"); lg.className = "legend";
+    items.forEach(function(i){ var s = document.createElement("span"), d = document.createElement("i"); d.style.background = i.c; s.appendChild(d); s.appendChild(document.createTextNode(i.k + " " + i.v + (total ? " (" + Math.round(i.v / total * 100) + "%)" : ""))); lg.appendChild(s); });
+    box.appendChild(lg);
+  }
+  function bars(box, items, opts){
+    box.textContent = "";
+    if (!items.length) { box.textContent = "No data yet."; return; }
+    var W = 420, H = 230, L = 44, B = 34, T = 26, max = Math.max.apply(null, items.map(function(i){ return i.v; })) || 1;
+    var svg = el("svg", { viewBox:"0 0 " + W + " " + H, role:"img", "aria-label":opts.label });
+    for (var g = 0; g <= 4; g++) {
+      var y = T + (H - T - B) * (1 - g / 4);
+      svg.appendChild(el("line", { x1:L, x2:W - 6, y1:y, y2:y, stroke:"#eef1f5" }));
+      svg.appendChild(el("text", { x:L - 6, y:y + 4, "text-anchor":"end", "font-size":11, fill:"#7b8494" }, opts.fmt(max * g / 4)));
+    }
+    var bw = (W - L - 10) / items.length;
+    items.forEach(function(i, k){
+      var h = (H - T - B) * i.v / max, x = L + k * bw + bw * 0.18, w = bw * 0.64;
+      var rect = el("rect", { x:x, y:H - B - h, width:w, height:Math.max(h, 0.5), rx:4, fill:i.c || "#d71920" });
+      rect.appendChild(el("title", {}, i.k + ": " + opts.fmt(i.v))); svg.appendChild(rect);
+      if (i.v) svg.appendChild(el("text", { x:x + w / 2, y:H - B - h - 4, "text-anchor":"middle", "font-size":11, "font-weight":600, fill:"#172033" }, opts.fmt(i.v)));
+      svg.appendChild(el("text", { x:x + w / 2, y:H - B + 16, "text-anchor":"middle", "font-size":11, fill:"#556176" }, i.k));
+    });
+    box.appendChild(svg);
+  }
+  function hbars(box, items){
+    box.textContent = "";
+    if (!items.length) { box.textContent = "No data yet."; return; }
+    var rowH = 30, W = 420, L = 120, H = items.length * rowH + 8, max = Math.max.apply(null, items.map(function(i){ return i.v; })) || 1;
+    var svg = el("svg", { viewBox:"0 0 " + W + " " + H, role:"img", "aria-label":"Top contributors" });
+    items.forEach(function(i, k){
+      var y = 4 + k * rowH, w = (W - L - 70) * i.v / max;
+      svg.appendChild(el("text", { x:L - 8, y:y + 18, "text-anchor":"end", "font-size":12, fill:"#172033" }, i.k.length > 16 ? i.k.slice(0, 15) + "\u2026" : i.k));
+      svg.appendChild(el("rect", { x:L, y:y + 5, width:Math.max(w, 2), height:18, rx:4, fill:"#172033" }));
+      svg.appendChild(el("text", { x:L + w + 6, y:y + 18, "font-size":11.5, fill:"#556176" }, i.v + " \u00b7 " + money(i.s)));
+    });
+    box.appendChild(svg);
+  }
+
+  function renderRev(){
+    var all = rev.rows || [];
+    var q = $("rq").value.trim().toLowerCase(), st = $("rStatus").value, pe = $("rPerson").value, mo = $("rMonth").value;
+    var rows = all.filter(function(r){
+      if (st && statusOf(r.Status) !== st) return false;
+      if (pe && String(r.Name || "").trim() !== pe) return false;
+      if (mo && monthKey(toDate(r.Timestamp)) !== mo) return false;
+      if (q && [r.IdeaID, r.IdeaDetails, r.Name].join(" ").toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    // KPIs and charts follow the filters
+    var save = 0, people = {}, byStatus = {}, saveByStatus = {}, byMonth = {};
+    STATUSES.forEach(function(s){ byStatus[s] = 0; saveByStatus[s] = 0; });
+    rows.forEach(function(r){
+      var s = statusOf(r.Status), v = Number(r.SavingsUSD) || 0, n = String(r.Name || "Unknown").trim() || "Unknown", m = monthKey(toDate(r.Timestamp));
+      save += v; byStatus[s]++; saveByStatus[s] += v;
+      people[n] = people[n] || { v:0, s:0 }; people[n].v++; people[n].s += v;
+      if (m) byMonth[m] = (byMonth[m] || 0) + 1;
+    });
+    $("rkCount").textContent = rows.length; $("rkSave").textContent = money(save);
+    $("rkDone").textContent = rows.length ? Math.round(byStatus.Completed / rows.length * 100) + "%" : "0%";
+    $("rkPeople").textContent = Object.keys(people).length;
+    donut($("chStatus"), STATUSES.map(function(s){ return { k:s, v:byStatus[s], c:STATUS_COLOR[s] }; }));
+    bars($("chMonth"), Object.keys(byMonth).sort().slice(-6).map(function(m){ return { k:monthLabel(m), v:byMonth[m], c:"#d71920" }; }), { label:"Ideas per month", fmt:function(v){ return String(Math.round(v)); } });
+    bars($("chSave"), STATUSES.map(function(s){ return { k:s, v:saveByStatus[s], c:STATUS_COLOR[s] }; }), { label:"Savings by status", fmt:money });
+    hbars($("chPeople"), Object.keys(people).map(function(n){ return { k:n, v:people[n].v, s:people[n].s }; }).sort(function(a, b){ return b.v - a.v || b.s - a.s; }).slice(0, 6));
+
+    // list with status editor
+    rows.sort(function(a, b){ var da = toDate(a.Timestamp), db = toDate(b.Timestamp); return (db ? db.getTime() : 0) - (da ? da.getTime() : 0); });
+    $("rShown").textContent = "Showing " + rows.length + " of " + all.length + " ideas";
+    var list = $("rList"); list.textContent = "";
+    rows.slice(0, 300).forEach(function(r){
+      var c = document.createElement("div"); c.className = "h-card"; c.style.cursor = "default";
+      var top = document.createElement("div"); top.className = "h-top";
+      var id = document.createElement("span"); id.className = "h-id"; id.textContent = r.IdeaID;
+      var b = document.createElement("span"); b.className = "badge " + badgeClass(r.Status); b.textContent = statusOf(r.Status);
+      top.appendChild(id); top.appendChild(b);
+      var t = document.createElement("p"); t.className = "h-txt"; t.textContent = r.IdeaDetails || "";
+      var m = document.createElement("div"); m.className = "h-meta";
+      var d = toDate(r.Timestamp);
+      m.textContent = [r.Name, d ? d.toLocaleDateString(undefined, { day:"2-digit", month:"short", year:"numeric" }) : "", r.ExecTime ? r.ExecTime + " " + (r.ExecUnit || "") : "", Number(r.SavingsUSD) ? "$" + Number(r.SavingsUSD).toLocaleString() : ""].filter(Boolean).join(" \u00b7 ");
+      var ed = document.createElement("div"); ed.className = "r-row";
+      var sel = document.createElement("select"); sel.setAttribute("aria-label", "Status for " + r.IdeaID);
+      STATUSES.forEach(function(s){ var o = document.createElement("option"); o.value = s; o.textContent = s; sel.appendChild(o); });
+      sel.value = statusOf(r.Status);
+      var act = document.createElement("span"); act.style.display = "flex"; act.style.gap = "6px";
+      var view = document.createElement("button"); view.type = "button"; view.className = "btn ghost r-save"; view.textContent = "View";
+      var save = document.createElement("button"); save.type = "button"; save.className = "btn primary r-save"; save.textContent = "Update"; save.disabled = true;
+      sel.addEventListener("change", function(){ save.disabled = sel.value === statusOf(r.Status); });
+      view.addEventListener("click", function(){ openDetail(r, getRevAuth()); });
+      save.addEventListener("click", function(){ setStatus(r, sel.value, save, b); });
+      ed.appendChild(sel); act.appendChild(view); act.appendChild(save); ed.appendChild(act);
+      c.appendChild(top); c.appendChild(t); c.appendChild(m); c.appendChild(ed); list.appendChild(c);
+    });
+  }
+
+  function setStatus(r, value, btn, badge){
+    rev.saving = true; btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Saving';
+    $("rListErr").textContent = "";
+    postBoard({ action: "setstatus", ideaId: r.IdeaID, status: value }, getRevAuth())
+      .then(function(){
+        r.Status = value; badge.className = "badge " + badgeClass(value); badge.textContent = value;
+        btn.textContent = "Saved"; renderRev();
+      })
+      .catch(function(err){ $("rListErr").textContent = "Could not update " + r.IdeaID + " (" + err.message + ")."; btn.disabled = false; btn.textContent = "Update"; })
+      .then(function(){ rev.saving = false; });
+  }
 })();
 </script>
 </body>
